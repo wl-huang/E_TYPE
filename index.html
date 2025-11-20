@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusType: King's Ladder</title>
+    <title>FocusType: Balanced Ranked</title>
     <style>
         :root {
             --bg-color: #f0f2f5;
@@ -20,7 +20,8 @@
             --gold: #f59e0b;
             --platinum: #06b6d4;
             --diamond: #8b5cf6;
-            --king: #e11d48; /* Rose Red for King */
+            --king: #e11d48; 
+            --god: #111827; /* Dark/Black for God Tier */
         }
 
         * { box-sizing: border-box; }
@@ -38,12 +39,7 @@
         }
 
         /* Header & Rank Info */
-        .header-section {
-            text-align: center;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 900px;
-        }
+        .header-section { text-align: center; margin-bottom: 20px; width: 100%; max-width: 900px; }
 
         .rank-badge-container {
             background: var(--card-bg);
@@ -54,80 +50,44 @@
             gap: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             margin-top: 10px;
-            border: 2px solid transparent;
+            border: 3px solid transparent;
             transition: all 0.3s;
         }
 
-        .rank-badge-container.is-king {
-            border-color: #fbbf24;
-            background: linear-gradient(to right, #fff1f2, #fff);
-        }
+        .rank-badge-container.is-king { border-color: var(--king); background: linear-gradient(to right, #fff0f2, #fff); }
+        .rank-badge-container.is-god { border-color: var(--god); background: linear-gradient(to right, #f3f4f6, #e5e7eb); color: var(--god); }
 
         .rank-icon {
             width: 45px; height: 45px;
             border-radius: 50%;
             background: #ccc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            color: white;
-            font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; color: white; font-size: 1.2rem;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        .rank-info {
-            text-align: left;
-            display: flex;
-            flex-direction: column;
-        }
-
+        .rank-info { text-align: left; display: flex; flex-direction: column; }
         .rank-title { font-weight: 800; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
         .rank-points { font-size: 0.9rem; color: var(--text-sub); }
 
         /* Race Track */
         .race-track {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
+            background: var(--card-bg); padding: 20px; border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 900px;
-            margin-bottom: 20px;
+            width: 100%; max-width: 900px; margin-bottom: 20px;
         }
 
-        .race-lane {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
+        .race-lane { display: flex; align-items: center; margin-bottom: 12px; }
         .race-lane:last-child { margin-bottom: 0; }
 
         .lane-label {
-            width: 100px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            text-align: right;
-            margin-right: 15px;
-            color: var(--text-sub);
+            width: 100px; font-size: 0.9rem; font-weight: bold;
+            text-align: right; margin-right: 15px; color: var(--text-sub);
         }
         
-        .lane-bar-bg {
-            flex-grow: 1;
-            height: 10px;
-            background-color: #e5e7eb;
-            border-radius: 5px;
-            overflow: hidden;
-        }
+        .lane-bar-bg { flex-grow: 1; height: 10px; background-color: #e5e7eb; border-radius: 5px; overflow: hidden; }
+        .lane-progress { height: 100%; width: 0%; border-radius: 5px; transition: width 0.3s ease-out; }
 
-        .lane-progress {
-            height: 100%;
-            width: 0%;
-            border-radius: 5px;
-            transition: width 0.3s ease-out;
-        }
-
-        /* Colors for Bots */
         .lane-user .lane-progress { background-color: var(--highlight); }
         .lane-bot1 .lane-progress { background-color: #ef4444; } 
         .lane-bot2 .lane-progress { background-color: #f59e0b; } 
@@ -137,34 +97,19 @@
 
         /* Typing Area */
         .typing-area {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
+            background: var(--card-bg); padding: 30px; border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            text-align: center;
-            position: relative;
-            width: 100%;
-            max-width: 900px;
+            text-align: center; position: relative;
+            width: 100%; max-width: 900px;
         }
 
-        .live-stats {
-            display: flex; justify-content: space-between; margin-bottom: 15px;
-            font-size: 0.9rem; color: var(--text-sub); font-weight: bold;
-        }
+        .live-stats { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.9rem; color: var(--text-sub); font-weight: bold; }
 
         .word-box {
-            height: 130px;
-            overflow: hidden;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: flex; flex-wrap: wrap; align-content: flex-start;
-            line-height: 2.5rem;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1.4rem;
-            background: #fafafa;
-            cursor: text;
+            height: 130px; overflow: hidden; border: 2px solid #e5e7eb; border-radius: 8px; padding: 15px;
+            margin-bottom: 20px; display: flex; flex-wrap: wrap; align-content: flex-start;
+            line-height: 2.5rem; font-family: 'Courier New', Courier, monospace; font-size: 1.4rem;
+            background: #fafafa; cursor: text;
         }
 
         .word { margin-right: 12px; padding: 2px 5px; border-radius: 4px; color: #9ca3af; }
@@ -173,10 +118,8 @@
         .word.incorrect { color: var(--error); text-decoration: line-through; }
 
         input#type-input {
-            width: 100%; padding: 15px; font-size: 1.2rem;
-            border: 2px solid #d1d5db; border-radius: 8px; outline: none;
-            font-family: 'Courier New', Courier, monospace;
-            transition: border-color 0.2s;
+            width: 100%; padding: 15px; font-size: 1.2rem; border: 2px solid #d1d5db; border-radius: 8px; outline: none;
+            font-family: 'Courier New', Courier, monospace; transition: border-color 0.2s;
         }
         input#type-input:focus { border-color: var(--highlight); }
         input#type-input.input-error { background-color: #fef2f2; border-color: var(--error); }
@@ -184,30 +127,19 @@
         /* Results Modal */
         .modal-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.98);
-            border-radius: 12px;
-            display: none;
-            flex-direction: column; align-items: center; justify-content: center;
-            z-index: 10;
+            background: rgba(255,255,255,0.98); border-radius: 12px;
+            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
         }
         .modal-overlay.visible { display: flex; }
 
         .result-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 5px; }
         .result-sub { color: var(--text-sub); margin-bottom: 20px; }
 
-        .rp-change {
-            font-size: 3rem; font-weight: 900;
-            margin: 5px 0;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+        .rp-change { font-size: 3rem; font-weight: 900; margin: 5px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .rp-plus { color: var(--correct); }
         .rp-minus { color: var(--error); }
 
-        .accuracy-note {
-            font-size: 0.9rem; font-weight: bold;
-            padding: 6px 15px; border-radius: 6px;
-            margin-bottom: 20px;
-        }
+        .accuracy-note { font-size: 0.9rem; font-weight: bold; padding: 6px 15px; border-radius: 6px; margin-bottom: 20px; }
         .acc-bonus { background: #d1fae5; color: #065f46; }
         .acc-penalty { background: #fee2e2; color: #991b1b; }
         .acc-fatal { background: #7f1d1d; color: #fecaca; border: 2px solid #991b1b; }
@@ -218,15 +150,12 @@
         .stat-mini label { font-size: 0.75rem; color: var(--text-sub); text-transform: uppercase; }
 
         button.btn-primary {
-            background-color: var(--highlight); color: white; border: none;
-            padding: 12px 30px; font-size: 1rem; border-radius: 6px;
-            cursor: pointer; font-weight: bold; transition: background 0.2s;
+            background-color: var(--highlight); color: white; border: none; padding: 12px 30px; font-size: 1rem;
+            border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s;
         }
         button.btn-primary:hover { background-color: #2563eb; }
 
-        .btn-reset {
-            margin-top: 20px; font-size: 0.8rem; color: #999; background: none; border: none; cursor: pointer; text-decoration: underline;
-        }
+        .btn-reset { margin-top: 20px; font-size: 0.8rem; color: #999; background: none; border: none; cursor: pointer; text-decoration: underline; }
 
     </style>
 </head>
@@ -323,13 +252,15 @@
             "consider", "actually", "learning", "research", "military", "resource", "language", "specific", "everyone", "training"
         ];
 
+        // UPDATED RANK CONFIGURATION
         const RANKS = [
-            { name: "Bronze", minRP: 0, color: "var(--bronze)", baseWPM: 10, wpmRange: 30, rpRange: 200 },   // 0-199 RP, 10-40 WPM
-            { name: "Silver", minRP: 200, color: "var(--silver)", baseWPM: 40, wpmRange: 30, rpRange: 200 }, // 200-399 RP, 40-70 WPM
-            { name: "Gold", minRP: 400, color: "var(--gold)", baseWPM: 70, wpmRange: 30, rpRange: 200 },     // 400-599 RP, 70-100 WPM
-            { name: "Platinum", minRP: 600, color: "var(--platinum)", baseWPM: 100, wpmRange: 20, rpRange: 200 }, // 600-799 RP, 100-120 WPM
-            { name: "Diamond", minRP: 800, color: "var(--diamond)", baseWPM: 120, wpmRange: 20, rpRange: 200 },   // 800-999 RP, 120-140 WPM
-            { name: "King", minRP: 1000, color: "var(--king)", baseWPM: 141, wpmRange: 50, rpRange: 1000 }        // 1000+, 141+
+            { name: "Bronze", minRP: 0, color: "var(--bronze)" },
+            { name: "Silver", minRP: 200, color: "var(--silver)" },
+            { name: "Gold", minRP: 400, color: "var(--gold)" },
+            { name: "Platinum", minRP: 600, color: "var(--platinum)" },
+            { name: "Diamond", minRP: 800, color: "var(--diamond)" },
+            { name: "King", minRP: 1000, color: "var(--king)" },
+            { name: "God", minRP: 1500, color: "var(--god)" }
         ];
 
         let currentWords = [];
@@ -344,33 +275,33 @@
         let botTimers = [];
         let userRP = null; 
 
-        // --- Helper: Calculate Ladder WPM based on RP ---
+        // --- 2. Math Formulas ---
+
+        // Calculate Bot WPM based on User RP
         function getLadderWPM(rp) {
-            if (rp < 200) return 10 + (rp / 200) * 30; // Bronze
-            if (rp < 400) return 40 + ((rp - 200) / 200) * 30; // Silver
-            if (rp < 600) return 70 + ((rp - 400) / 200) * 30; // Gold
-            if (rp < 800) return 100 + ((rp - 600) / 200) * 20; // Plat
-            if (rp < 1000) return 120 + ((rp - 800) / 200) * 20; // Diamond
-            return 141 + ((rp - 1000) / 100) * 10; // King (slow scaling)
+            if (rp < 200) return 5 + (rp / 200) * 15;         // Bronze: 5-20
+            if (rp < 400) return 20 + ((rp - 200) / 200) * 15;// Silver: 20-35
+            if (rp < 600) return 35 + ((rp - 400) / 200) * 15;// Gold: 35-50
+            if (rp < 800) return 50 + ((rp - 600) / 200) * 20;// Platinum: 50-70
+            if (rp < 1000) return 70 + ((rp - 800) / 200) * 20;// Diamond: 70-90
+            if (rp < 1500) return 90 + ((rp - 1000) / 500) * 20;// King: 90-110
+            return 110 + ((rp - 1500) / 100) * 5;             // God: 110+
         }
 
-        // --- Helper: Calculate RP based on WPM (Inverse for Placement) ---
+        // Inverse: Calculate RP from WPM (For Placement)
         function getRPFromWPM(wpm) {
-            if (wpm < 40) return ((wpm - 10) / 30) * 200; // Bronze
-            if (wpm < 70) return 200 + ((wpm - 40) / 30) * 200; // Silver
-            if (wpm < 100) return 400 + ((wpm - 70) / 30) * 200; // Gold
-            if (wpm < 120) return 600 + ((wpm - 100) / 20) * 200; // Plat
-            if (wpm < 140) return 800 + ((wpm - 120) / 20) * 200; // Diamond
-            return 1000; // King Cap for placement
+            if (wpm < 20) return ((wpm - 5) / 15) * 200;
+            if (wpm < 35) return 200 + ((wpm - 20) / 15) * 200;
+            if (wpm < 50) return 400 + ((wpm - 35) / 15) * 200;
+            if (wpm < 70) return 600 + ((wpm - 50) / 20) * 200;
+            if (wpm < 90) return 800 + ((wpm - 70) / 20) * 200;
+            if (wpm < 110) return 1000 + ((wpm - 90) / 20) * 500;
+            return 1500 + ((wpm - 110) / 5) * 100;
         }
 
         function loadUserData() {
             const storedRP = localStorage.getItem('focusType_RP');
-            if (storedRP !== null) {
-                userRP = parseInt(storedRP, 10);
-            } else {
-                userRP = null; 
-            }
+            userRP = storedRP !== null ? parseInt(storedRP, 10) : null;
             updateRankDisplay();
         }
 
@@ -392,8 +323,7 @@
             const nameEl = document.getElementById('rank-name');
             const detailEl = document.getElementById('rank-details');
 
-            // Reset special class
-            containerEl.classList.remove('is-king');
+            containerEl.className = 'rank-badge-container'; // reset
 
             if (userRP === null) {
                 iconEl.style.background = "#555";
@@ -403,16 +333,15 @@
                 detailEl.innerText = "Play 1 game to rank";
             } else {
                 iconEl.style.background = rank.color;
-                iconEl.innerText = rank.name === "King" ? "K" : rank.name[0];
+                iconEl.innerText = rank.name === "King" ? "K" : (rank.name === "God" ? "G" : rank.name[0]);
                 nameEl.innerText = rank.name;
                 nameEl.style.color = rank.color;
                 
-                if(rank.name === "King") {
-                    containerEl.classList.add('is-king');
-                    detailEl.innerText = `${userRP} RP (Legendary)`;
-                } else {
-                    detailEl.innerText = `${userRP} RP` + (rank.next !== "MAX" ? ` / ${rank.next} for Promotion` : "");
-                }
+                if(rank.name === "King") containerEl.classList.add('is-king');
+                if(rank.name === "God") containerEl.classList.add('is-god');
+
+                if(rank.next === "MAX") detailEl.innerText = `${userRP} RP (MAX)`;
+                else detailEl.innerText = `${userRP} RP / ${rank.next} for Promo`;
             }
         }
 
@@ -427,7 +356,6 @@
 
         function initGame() {
             loadUserData();
-            
             currentWords = shuffle(wordPool).slice(0, SESSION_LENGTH);
             currentIndex = 0;
             startTime = null;
@@ -467,31 +395,27 @@
             });
 
             let botSpeeds = [];
-            const botNames = ["Ben", "Quail", "Teddy"];
-
             if (userRP === null) {
-                // FIXED PLACEMENT SPEEDS
-                botSpeeds = [15, 30, 45]; 
+                botSpeeds = [15, 30, 45]; // Ben(Bronze), Quail(Silver), Teddy(Gold)
             } else {
-                // RANKED MODE
                 const ladderWPM = getLadderWPM(userRP);
                 botSpeeds = [
-                    Math.floor(ladderWPM * 0.85), 
-                    Math.floor(ladderWPM * 1.0), 
-                    Math.floor(ladderWPM * 1.15)
+                    Math.floor(ladderWPM * 0.9), 
+                    Math.floor(ladderWPM * 0.97), 
+                    Math.floor(ladderWPM * 1.08)
                 ];
             }
 
             bots = botSpeeds.map((wpm, i) => ({
                 id: `bot${i+1}`,
                 element: document.getElementById(`prog-bot${i+1}`),
-                wpm: Math.max(5, wpm), // Safety floor
+                wpm: Math.max(5, wpm),
                 progress: 0,
                 finished: false
             }));
-
-            botNames.forEach((name, i) => {
-                document.getElementById(`label-bot${i+1}`).innerText = name;
+            
+            ["Ben", "Quail", "Teddy"].forEach((n, i) => {
+                document.getElementById(`label-bot${i+1}`).innerText = n;
             });
         }
 
@@ -502,7 +426,6 @@
         function scheduleBotWord(botIndex) {
             if (!gameActive) return;
             const bot = bots[botIndex];
-            
             if (bot.progress >= SESSION_LENGTH) {
                 bot.finished = true;
                 return;
@@ -511,7 +434,6 @@
             let baseDelay = 60000 / bot.wpm;
             let variance = (Math.random() * 0.6) + 0.7; 
             let actualDelay = baseDelay * variance;
-
             if (Math.random() < 0.10) actualDelay += 1500;
 
             const tid = setTimeout(() => {
@@ -538,7 +460,6 @@
                 }, 1000);
                 startBots();
             }
-
             const typed = e.target.value;
             const target = currentWords[currentIndex];
             totalKeystrokes++;
@@ -555,7 +476,6 @@
             if (e.code === 'Space') {
                 e.preventDefault();
                 if (!gameActive) return;
-
                 const val = inputEl.value.trim();
                 const target = currentWords[currentIndex];
                 const spans = document.querySelectorAll('.word');
@@ -571,7 +491,6 @@
                     currentIndex++;
                     document.getElementById('prog-user').style.width = `${(currentIndex/SESSION_LENGTH)*100}%`;
                     document.getElementById('progress-text').innerText = `${currentIndex} / ${SESSION_LENGTH}`;
-                    
                     inputEl.value = '';
                     inputEl.classList.remove('input-error');
 
@@ -599,7 +518,6 @@
 
             let place = 1;
             bots.forEach(b => { if (b.progress >= SESSION_LENGTH) place++; });
-
             processResults(wpm, accuracy, place);
         }
 
@@ -609,7 +527,6 @@
             const rpChangeEl = document.getElementById('res-rp-change');
             const accNoteEl = document.getElementById('res-acc-note');
 
-            // UI Stats
             document.getElementById('res-acc').innerText = accuracy + "%";
             document.getElementById('res-rank').innerText = place;
             document.getElementById('res-wpm').innerText = wpm;
@@ -617,38 +534,29 @@
             accNoteEl.style.display = 'none';
             accNoteEl.className = 'accuracy-note';
 
-            // === FATAL ACCURACY CHECK (< 60%) ===
+            // Fatal Check
             if (accuracy < 60) {
                 if (userRP !== null) {
                     userRP = Math.max(0, userRP - 60);
                     localStorage.setItem('focusType_RP', userRP);
                 }
-                
                 titleEl.innerText = "DISQUALIFIED";
                 titleEl.style.color = "var(--error)";
                 subEl.innerText = "Accuracy < 60%. Score invalid.";
-                
                 rpChangeEl.innerHTML = `<span class="rp-minus">-60 RP</span>`;
-                
                 document.getElementById('res-wpm').innerText = "---";
-                document.getElementById('res-wpm').style.color = "#aaa";
-                
                 accNoteEl.innerText = "SUPER OUT OF CONTROL";
                 accNoteEl.classList.add('acc-fatal');
                 accNoteEl.style.display = 'inline-block';
-
                 document.getElementById('results-modal').classList.add('visible');
                 updateRankDisplay();
                 return;
             }
 
-            // === NORMAL FLOW ===
-
             if (userRP === null) {
-                // Placement Calculation using new segments
+                // Placement
                 const effectiveWPM = Math.floor(wpm * (accuracy / 100) * 0.8);
                 const calculatedRP = Math.floor(getRPFromWPM(effectiveWPM));
-                
                 userRP = Math.max(0, calculatedRP);
                 localStorage.setItem('focusType_RP', userRP);
 
@@ -656,14 +564,13 @@
                 titleEl.style.color = "var(--highlight)";
                 subEl.innerText = `Effective WPM: ${effectiveWPM} (Initial Calib)`;
                 rpChangeEl.innerHTML = `<span style="color:var(--highlight); font-size:1.5rem;">Rank: ${getRankInfo(userRP).name} (${userRP} RP)</span>`;
-            
             } else {
-                // Ranked Calculation
+                // Ranked Scoring
                 let change = 0;
                 if (place === 1) change = 30;
                 else if (place === 2) change = 10;
-                else if (place === 3) change = -10;
-                else change = -30;
+                else if (place === 3) change = -5;
+                else change = -35;
 
                 // Accuracy Modifiers
                 let accMod = 0;
@@ -693,24 +600,21 @@
                 
                 const sign = totalChange >= 0 ? "+" : "";
                 const colorClass = totalChange >= 0 ? "rp-plus" : "rp-minus";
-                
                 subEl.innerText = `(Place ${change > 0 ? '+'+change : change} | Acc ${accMod > 0 ? '+'+accMod : accMod})`;
                 rpChangeEl.innerHTML = `<span class="${colorClass}">${sign}${totalChange} RP</span>`;
             }
-
             document.getElementById('results-modal').classList.add('visible');
             updateRankDisplay();
         }
 
         function resetData() {
-            if(confirm("Reset all rank data? You will play a placement match next.")) {
+            if(confirm("Reset all rank data?")) {
                 localStorage.removeItem('focusType_RP');
                 location.reload();
             }
         }
 
         window.onload = initGame;
-
     </script>
 </body>
 </html>
