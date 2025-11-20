@@ -535,14 +535,14 @@
             accNoteEl.className = 'accuracy-note';
 
             // Fatal Check
-            if (accuracy < 60) {
+            if (accuracy < 80) {
                 if (userRP !== null) {
                     userRP = Math.max(0, userRP - 60);
                     localStorage.setItem('focusType_RP', userRP);
                 }
                 titleEl.innerText = "DISQUALIFIED";
                 titleEl.style.color = "var(--error)";
-                subEl.innerText = "Accuracy < 60%. Score invalid.";
+                subEl.innerText = "Accuracy < 80%. Score invalid.";
                 rpChangeEl.innerHTML = `<span class="rp-minus">-60 RP</span>`;
                 document.getElementById('res-wpm').innerText = "---";
                 accNoteEl.innerText = "SUPER OUT OF CONTROL";
