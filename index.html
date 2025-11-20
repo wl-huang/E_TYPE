@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusType: Balanced Ranked</title>
+    <title>FocusType: Hardcore Ranked</title>
     <style>
         :root {
             --bg-color: #f0f2f5;
@@ -21,7 +21,7 @@
             --platinum: #06b6d4;
             --diamond: #8b5cf6;
             --king: #e11d48; 
-            --god: #111827; /* Dark/Black for God Tier */
+            --god: #111827;
         }
 
         * { box-sizing: border-box; }
@@ -38,7 +38,6 @@
             padding: 20px;
         }
 
-        /* Header & Rank Info */
         .header-section { text-align: center; margin-bottom: 20px; width: 100%; max-width: 900px; }
 
         .rank-badge-container {
@@ -70,7 +69,6 @@
         .rank-title { font-weight: 800; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
         .rank-points { font-size: 0.9rem; color: var(--text-sub); }
 
-        /* Race Track */
         .race-track {
             background: var(--card-bg); padding: 20px; border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
@@ -95,7 +93,6 @@
 
         .lane-user .lane-label { color: var(--highlight); font-weight: 900; font-size: 0.9rem;}
 
-        /* Typing Area */
         .typing-area {
             background: var(--card-bg); padding: 30px; border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
@@ -124,7 +121,6 @@
         input#type-input:focus { border-color: var(--highlight); }
         input#type-input.input-error { background-color: #fef2f2; border-color: var(--error); }
 
-        /* Results Modal */
         .modal-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255,255,255,0.98); border-radius: 12px;
@@ -156,7 +152,6 @@
         button.btn-primary:hover { background-color: #2563eb; }
 
         .btn-reset { margin-top: 20px; font-size: 0.8rem; color: #999; background: none; border: none; cursor: pointer; text-decoration: underline; }
-
     </style>
 </head>
 <body>
@@ -199,11 +194,11 @@
 
         <div class="word-box" id="word-box" onclick="document.getElementById('type-input').focus()"></div>
 
-        <input type="text" id="type-input" placeholder="Type the words here..." autocomplete="off" spellcheck="false">
+        <input type="text" id="type-input" placeholder="Type here..." autocomplete="off" spellcheck="false">
 
         <div id="results-modal" class="modal-overlay">
             <div class="result-title" id="res-title">Finished!</div>
-            <div class="result-sub" id="res-sub">Calculating rank update...</div>
+            <div class="result-sub" id="res-sub">Calculating...</div>
             
             <div class="rp-change" id="res-rp-change"></div>
             <div id="res-acc-note" style="display:none;"></div>
@@ -227,7 +222,6 @@
     <button class="btn-reset" onclick="resetData()">[Reset Progress & Data]</button>
 
     <script>
-        // --- 1. Configuration ---
         const SESSION_LENGTH = 20;
         const wordPool = [
             "really", "family", "school", "always", "result", "change", "reason", "person", "moment", "father",
@@ -252,7 +246,6 @@
             "consider", "actually", "learning", "research", "military", "resource", "language", "specific", "everyone", "training"
         ];
 
-        // UPDATED RANK CONFIGURATION
         const RANKS = [
             { name: "Bronze", minRP: 0, color: "var(--bronze)" },
             { name: "Silver", minRP: 200, color: "var(--silver)" },
@@ -270,25 +263,23 @@
         let gameActive = false;
         let totalKeystrokes = 0;
         let totalMistakes = 0;
+        let correctCharCount = 0;
         
         let bots = [];
         let botTimers = [];
         let userRP = null; 
 
-        // --- 2. Math Formulas ---
-
-        // Calculate Bot WPM based on User RP
+        // --- Math Formulas ---
         function getLadderWPM(rp) {
-            if (rp < 200) return 5 + (rp / 200) * 15;         // Bronze: 5-20
-            if (rp < 400) return 20 + ((rp - 200) / 200) * 15;// Silver: 20-35
-            if (rp < 600) return 35 + ((rp - 400) / 200) * 15;// Gold: 35-50
-            if (rp < 800) return 50 + ((rp - 600) / 200) * 20;// Platinum: 50-70
-            if (rp < 1000) return 70 + ((rp - 800) / 200) * 20;// Diamond: 70-90
-            if (rp < 1500) return 90 + ((rp - 1000) / 500) * 20;// King: 90-110
-            return 110 + ((rp - 1500) / 100) * 5;             // God: 110+
+            if (rp < 200) return 5 + (rp / 200) * 15;
+            if (rp < 400) return 20 + ((rp - 200) / 200) * 15;
+            if (rp < 600) return 35 + ((rp - 400) / 200) * 15;
+            if (rp < 800) return 50 + ((rp - 600) / 200) * 20;
+            if (rp < 1000) return 70 + ((rp - 800) / 200) * 20;
+            if (rp < 1500) return 90 + ((rp - 1000) / 500) * 20;
+            return 110 + ((rp - 1500) / 100) * 5;
         }
 
-        // Inverse: Calculate RP from WPM (For Placement)
         function getRPFromWPM(wpm) {
             if (wpm < 20) return ((wpm - 5) / 15) * 200;
             if (wpm < 35) return 200 + ((wpm - 20) / 15) * 200;
@@ -361,6 +352,7 @@
             startTime = null;
             totalKeystrokes = 0;
             totalMistakes = 0;
+            correctCharCount = 0;
             gameActive = false;
             if(timerInterval) clearInterval(timerInterval);
 
@@ -396,13 +388,13 @@
 
             let botSpeeds = [];
             if (userRP === null) {
-                botSpeeds = [15, 30, 45]; // Ben(Bronze), Quail(Silver), Teddy(Gold)
+                botSpeeds = [15, 30, 45]; 
             } else {
                 const ladderWPM = getLadderWPM(userRP);
                 botSpeeds = [
-                    Math.floor(ladderWPM * 0.9), 
-                    Math.floor(ladderWPM * 0.97), 
-                    Math.floor(ladderWPM * 1.08)
+                    Math.floor(ladderWPM * 0.91), 
+                    Math.floor(ladderWPM * 0.98), 
+                    Math.floor(ladderWPM * 1.1)
                 ];
             }
 
@@ -483,8 +475,10 @@
                 if (val.length > 0) {
                     if (val === target) {
                         spans[currentIndex].classList.add('correct');
+                        correctCharCount += target.length; // Anti-cheat: add logic
                     } else {
                         spans[currentIndex].classList.add('incorrect');
+                        totalMistakes++; // Skip penalty: Wrong word submittal is a mistake
                     }
                     spans[currentIndex].classList.remove('active');
 
@@ -512,13 +506,16 @@
 
             const endTime = new Date();
             const minutes = (endTime - startTime) / 60000;
-            const totalChars = currentWords.join('').length + SESSION_LENGTH;
-            const wpm = Math.round((totalChars / 5) / minutes);
+            
+            // Anti-Cheat WPM: Based on CORRECT chars only, plus spaces
+            const wpm = Math.round(((correctCharCount + SESSION_LENGTH) / 5) / minutes);
+            const safeWPM = isFinite(wpm) ? wpm : 0;
+
             const accuracy = totalKeystrokes > 0 ? Math.round(((totalKeystrokes - totalMistakes)/totalKeystrokes)*100) : 0;
 
             let place = 1;
             bots.forEach(b => { if (b.progress >= SESSION_LENGTH) place++; });
-            processResults(wpm, accuracy, place);
+            processResults(safeWPM, accuracy, place);
         }
 
         function processResults(wpm, accuracy, place) {
@@ -534,7 +531,7 @@
             accNoteEl.style.display = 'none';
             accNoteEl.className = 'accuracy-note';
 
-            // Fatal Check
+            // === FATAL CHECK (Strict < 80%) ===
             if (accuracy < 80) {
                 if (userRP !== null) {
                     userRP = Math.max(0, userRP - 60);
@@ -545,7 +542,11 @@
                 subEl.innerText = "Accuracy < 80%. Score invalid.";
                 rpChangeEl.innerHTML = `<span class="rp-minus">-60 RP</span>`;
                 document.getElementById('res-wpm').innerText = "---";
-                accNoteEl.innerText = "SUPER OUT OF CONTROL";
+                
+                // Differentiate Fatal vs Warning text
+                if(accuracy < 60) accNoteEl.innerText = "SUPER OUT OF CONTROL (< 60%)";
+                else accNoteEl.innerText = "UNACCEPTABLE ACCURACY (< 80%)";
+                
                 accNoteEl.classList.add('acc-fatal');
                 accNoteEl.style.display = 'inline-block';
                 document.getElementById('results-modal').classList.add('visible');
@@ -553,6 +554,7 @@
                 return;
             }
 
+            // === NORMAL FLOW ===
             if (userRP === null) {
                 // Placement
                 const effectiveWPM = Math.floor(wpm * (accuracy / 100) * 0.8);
@@ -579,9 +581,10 @@
                     accMod = 5;
                     accText = "High Precision +5 RP";
                     accNoteEl.classList.add('acc-bonus');
-                } else if (accuracy < 90) {
+                } else if (accuracy < 90) { 
+                    // Range 80% - 89%
                     accMod = -10;
-                    accText = "Low Accuracy -10 RP";
+                    accText = "Careless -10 RP";
                     accNoteEl.classList.add('acc-penalty');
                 }
 
