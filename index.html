@@ -426,7 +426,22 @@
             let baseDelay = 60000 / bot.wpm;
             let variance = (Math.random() * 0.6) + 0.7; 
             let actualDelay = baseDelay * variance;
-            if (Math.random() < 0.10) actualDelay += 1500;
+
+            // [修正] 新的失誤機制
+            // 1. 失誤率固定為 10% (不管快慢，都是10%機率會手滑)
+            let mistakeChance = 0.10;
+
+            if (Math.random() < mistakeChance) {
+                // 2. 失誤懲罰時間：速度越快，恢復越快 (模擬高手修正極快)
+                // 公式：30000 / wpm 毫秒
+                // 範例：20 wpm -> 1.5s, 100 wpm -> 0.3s
+                let recoveryTime = 30000 / bot.wpm;
+                
+                // 加上一點隨機浮動 (80% ~ 120%)
+                let recoveryVariance = 0.8 + Math.random() * 0.4;
+                
+                actualDelay += recoveryTime * recoveryVariance;
+            }
 
             const tid = setTimeout(() => {
                 if (!gameActive) return;
@@ -465,14 +480,13 @@
                 totalMistakes++;
             }
 
-            // [修正] 最後一個字：完全符合目標字時，直接結算
             if (currentIndex === SESSION_LENGTH - 1 && val === target) {
                 const spans = document.querySelectorAll('.word');
                 spans[currentIndex].classList.remove('active');
                 spans[currentIndex].classList.add('correct');
                 correctCharCount += target.length;
 
-                // [視覺修正] 將進度條拉滿到 100%
+                // 自動結算時將進度條拉滿
                 document.getElementById('prog-user').style.width = '100%';
                 document.getElementById('progress-text').innerText = `${SESSION_LENGTH} / ${SESSION_LENGTH}`;
                 
@@ -491,10 +505,10 @@
                 if (val.length > 0) {
                     if (val === target) {
                         spans[currentIndex].classList.add('correct');
-                        correctCharCount += target.length; // Anti-cheat: add logic
+                        correctCharCount += target.length; 
                     } else {
                         spans[currentIndex].classList.add('incorrect');
-                        totalMistakes++; // Skip penalty: Wrong word submittal is a mistake
+                        totalMistakes++; 
                     }
                     spans[currentIndex].classList.remove('active');
 
@@ -523,7 +537,6 @@
             const endTime = new Date();
             const minutes = (endTime - startTime) / 60000;
             
-            // Anti-Cheat WPM: Based on CORRECT chars only, plus spaces
             const wpm = Math.round(((correctCharCount + SESSION_LENGTH) / 5) / minutes);
             const safeWPM = isFinite(wpm) ? wpm : 0;
 
@@ -547,7 +560,6 @@
             accNoteEl.style.display = 'none';
             accNoteEl.className = 'accuracy-note';
 
-            // === FATAL CHECK (Strict < 80%) ===
             if (accuracy < 80) {
                 if (userRP !== null) {
                     userRP = Math.max(0, userRP - 60);
@@ -559,7 +571,6 @@
                 rpChangeEl.innerHTML = `<span class="rp-minus">-60 RP</span>`;
                 document.getElementById('res-wpm').innerText = "---";
                 
-                // Differentiate Fatal vs Warning text
                 if(accuracy < 60) accNoteEl.innerText = "SUPER OUT OF CONTROL (< 60%)";
                 else accNoteEl.innerText = "UNACCEPTABLE ACCURACY (< 80%)";
                 
@@ -570,9 +581,7 @@
                 return;
             }
 
-            // === NORMAL FLOW ===
             if (userRP === null) {
-                // Placement
                 const effectiveWPM = Math.floor(wpm * (accuracy / 100) * 0.8);
                 const calculatedRP = Math.floor(getRPFromWPM(effectiveWPM));
                 userRP = Math.max(0, calculatedRP);
@@ -583,14 +592,12 @@
                 subEl.innerText = `Effective WPM: ${effectiveWPM} (Initial Calib)`;
                 rpChangeEl.innerHTML = `<span style="color:var(--highlight); font-size:1.5rem;">Rank: ${getRankInfo(userRP).name} (${userRP} RP)</span>`;
             } else {
-                // Ranked Scoring
                 let change = 0;
                 if (place === 1) change = 30;
                 else if (place === 2) change = 10;
                 else if (place === 3) change = -5;
                 else change = -35;
 
-                // Accuracy Modifiers
                 let accMod = 0;
                 let accText = "";
                 if (accuracy >= 95) {
@@ -598,7 +605,6 @@
                     accText = "High Precision +5 RP";
                     accNoteEl.classList.add('acc-bonus');
                 } else if (accuracy < 90) { 
-                    // Range 80% - 89%
                     accMod = -10;
                     accText = "Careless -10 RP";
                     accNoteEl.classList.add('acc-penalty');
