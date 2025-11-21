@@ -471,6 +471,11 @@
                 spans[currentIndex].classList.remove('active');
                 spans[currentIndex].classList.add('correct');
                 correctCharCount += target.length;
+
+                // [視覺修正] 將進度條拉滿到 100%
+                document.getElementById('prog-user').style.width = '100%';
+                document.getElementById('progress-text').innerText = `${SESSION_LENGTH} / ${SESSION_LENGTH}`;
+                
                 finishGame();
             }
         });
