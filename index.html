@@ -464,37 +464,51 @@
             }
         });
 
-        inputEl.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                if (!gameActive) return;
-                const val = inputEl.value.trim();
-                const target = currentWords[currentIndex];
+  
+inputEl.addEventListener('input', (e) => {
+            // 1. 遊戲開始計時邏輯 (保持不變)
+            if (!startTime && e.target.value.length > 0) {
+                gameActive = true;
+                startTime = new Date();
+                timerInterval = setInterval(() => {
+                    const diff = Math.floor((new Date() - startTime) / 1000);
+                    const m = Math.floor(diff/60).toString().padStart(2,'0');
+                    const s = (diff%60).toString().padStart(2,'0');
+                    document.getElementById('timer-text').innerText = `${m}:${s}`;
+                }, 1000);
+                startBots();
+            }
+
+            const typed = e.target.value;
+            const val = typed.trim(); // 取得去除空白的值
+            const target = currentWords[currentIndex];
+            
+            // 增加總按鍵數 (保持不變)
+            totalKeystrokes++;
+
+            // 2. 錯誤提示邏輯 (保持不變)
+            if (target.startsWith(val)) {
+                inputEl.classList.remove('input-error');
+            } else {
+                inputEl.classList.add('input-error');
+                totalMistakes++;
+            }
+
+            // ==========================================
+            // [新增功能] 最後一個字：比對正確後直接結算
+            // ==========================================
+            if (currentIndex === SESSION_LENGTH - 1 && val === target) {
                 const spans = document.querySelectorAll('.word');
+                
+                // 標記最後一個字為正確
+                spans[currentIndex].classList.remove('active');
+                spans[currentIndex].classList.add('correct');
+                
+                // 因為沒有經過 keydown Space，所以要在這裡補加正確字數
+                correctCharCount += target.length;
 
-                if (val.length > 0) {
-                    if (val === target) {
-                        spans[currentIndex].classList.add('correct');
-                        correctCharCount += target.length; // Anti-cheat: add logic
-                    } else {
-                        spans[currentIndex].classList.add('incorrect');
-                        totalMistakes++; // Skip penalty: Wrong word submittal is a mistake
-                    }
-                    spans[currentIndex].classList.remove('active');
-
-                    currentIndex++;
-                    document.getElementById('prog-user').style.width = `${(currentIndex/SESSION_LENGTH)*100}%`;
-                    document.getElementById('progress-text').innerText = `${currentIndex} / ${SESSION_LENGTH}`;
-                    inputEl.value = '';
-                    inputEl.classList.remove('input-error');
-
-                    if (currentIndex >= SESSION_LENGTH) {
-                        finishGame();
-                    } else {
-                        spans[currentIndex].classList.add('active');
-                        spans[currentIndex].scrollIntoView({ behavior: "smooth", block: "center" });
-                    }
-                }
+                // 直接結束遊戲
+                finishGame();
             }
         });
 
